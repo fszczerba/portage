@@ -63,7 +63,7 @@ src_unpack() {
 		unpack ${A}
 	fi
 	cd "${S}"
-	epatch "${FILESDIR}"/0.4.0/*.patch
+	#epatch "${FILESDIR}"/0.4.0/*.patch
 }
 
 src_compile() {
