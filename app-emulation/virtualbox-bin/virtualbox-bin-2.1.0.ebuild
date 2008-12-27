@@ -153,7 +153,7 @@ src_install() {
 	# virtualbox is linked against libcap1, but only uses interfaces which are
 	# ABI-compatible with libcap2, so just create a private symlink to satisfy
 	# the linker
-	dosym /opt/VirtualBox/libcap.so.1 ../../lib/libcap.so.2
+	dosym ../../lib/libcap.so.2 /opt/VirtualBox/libcap.so.1
 
 	local each
 	for each in VBox{Manage,SVC,XPCOMIPCD,Tunctl} ; do
