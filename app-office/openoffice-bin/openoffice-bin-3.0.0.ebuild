@@ -153,7 +153,7 @@ src_install () {
 	dosym ${INSTDIR}/program/spadmin /usr/bin/ooffice-printeradmin
 	dosym ${INSTDIR}/program/soffice /usr/bin/soffice
 
-	rm -f "${D}${INSTDIR}"/basis-link || die
+	rm -f ${INSTDIR}/basis-link || die
 	dosym ${INSTDIR}/basis3.0 ${INSTDIR}/basis-link
 
 	# Change user install dir
