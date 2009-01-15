@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>net-irc</herd>
+	<longdescription lang="en">
+		Night Light IRC Bouncer/Proxy (ircproxy) is an advanced multi-user IRC
+		bouncer written in C with IPv6 and SSL support.
+		
+		It can proxy simultaneous users at the same time to different IRC
+		servers.
+		
+		The IRC connection can stay connected to IRC when the IRC client
+		disconnects, the user can then later reattach to the same IRC
+		connection.
+
+		Private messages and channel activity can an be logged when no IRC
+		clients are attached. You can then see what you have been missing while
+		you're offline.
+
+		It is also possible to attach multiple IRC clients on the same IRC
+		connection. This is useful if you want to be connected from home and
+		work at the same time without cloning.
+	</longdescription>
+	<use>
+		<flag name="memdebug">Enable memory debugging.</flag>
+		<flag name="fddebug">Enable file-descriptor debugging.</flag>
+		<flag name="identd">Enable internal identd daemon.</flag>
+	</use>
+	<upstream>
+		<maintainer>
+			<email>jonas@night-light.net</email>
+			<name>Jonas Kvinge</name>
+		</maintainer>
+	</upstream>
+</pkgmetadata>
