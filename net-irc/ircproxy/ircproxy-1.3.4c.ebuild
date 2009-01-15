@@ -3,6 +3,7 @@
 # $Header: $
 
 EAPI="2"
+inherit eutils
 
 DESCRIPTION="Night Light multi-user IRC proxy/bouncer"
 HOMEPAGE="http://www.ircproxy.night-light.net/"
@@ -19,6 +20,22 @@ DEPEND="net-dns/c-ares
 		ssl? ( dev-libs/openssl )"
 RDEPEND="${DEPEND}"
 
+src_unpack() {
+	unpack ${A}
+	cd "${S}"
+
+	sed -i -e '
+			s:/usr/share/:/etc/:g;
+			s:EGROUP="users":EGROUP="ircproxy":;
+			s:\(PIDFILE=.*\):# Set the pidfile in /etc/conf.d/ircproxy.conf\n#\1:;
+		' \
+		data/ircproxyd.conf || die "sed failed!"
+
+	use ssl || sed -i -e 's:^SSL:#SSL:' \
+			-s 's:#SSLSUPPORT=.*:SSLSUPPORT=no:' \
+			data/ircproxyd.conf || die "sed for !ssl failed!"
+}
+
 src_configure() {
 	econf \
 		$(use_enable ssl) \
@@ -33,11 +50,26 @@ src_configure() {
 src_install() {
 	emake DESTDIR="${D}" install || die "Install failed"
 	dodoc AUTHORS BUGS ChangeLog FAQ FEATURES INSTALL README || die
-	dodir /etc/ircproxy/
+
+	newconfd "${FILESDIR}"/ircproxyd.conf ircproxyd
+	newinitd "${FILESDIR}"/ircproxyd.init ircproxyd
+
+	# put config files in /etc/ircproxy
+	insinto /etc/${PN}/
 	doins data/*
+
+	# rename example conf files
+	for f in "${D}/usr/share/${PN}"/*.conf ; do
+		mv "${f}" "${f}.example" || die "mv "${f}" "${f}.example" failed!"
+	done
+
+	if use ssl ; then
+		diropts -m0750 --owner=ircproxy --group=ircproxy
+		dodir /etc/${PN}/cert
+	fi
 }
 
-pkg_postinst() {
-	elog "You will need to set up an ircproxyd.conf before running ircproxyd."
-	elog "A sample ircproxyd.conf is installed in /usr/share/ircproxy."
+pkg_setup() {
+	enewgroup ircproxy
+	enewuser ircproxy -1 -1 -1 ircproxy
 }

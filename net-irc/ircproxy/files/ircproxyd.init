@@ -1,0 +1,65 @@
+#!/sbin/runscript
+# Copyright 1999-2009 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+depend() {
+	need net
+}
+
+checkconfig() {
+	if [ -z "${IRCPROXYD_EXEC}" -o ! -x "${IRCPROXYD_EXEC}" ] ; then
+		eerror "Unconfigured or missing ircproxyd: ${IRCPROXYD_EXEC}"
+		return 1
+	fi
+	if [ -z "${IRCPROXYD_CONF}" -o ! -f "${IRCPROXYD_CONF}" ] ; then
+		eerror "Unconfigured or missing config: ${IRCPROXYD_CONF}"
+		return 1
+	fi
+	if [ -z "$IRCPROXYD_PIDFILE" ] ; then
+		eerror "IRCPROXYD_PIDFILE not set"
+		return 1
+	fi
+}
+
+start() {
+	ebegin "Starting ircproxyd"
+
+	local usergroup=${IRCPROXYD_USER:-ircproxy}:${IRCPROXYD_GROUP:-ircproxy}
+
+	if [ ! -e /var/run/ircproxyd ] ; then
+		mkdir -p /var/run/ircproxyd
+		chown ${usergroup} /var/run/ircproxyd
+	fi
+
+	if [ ! -e /var/log/ircproxy ] ; then
+		mkdir -p /var/log/ircproxy
+		chown ${usergroup} /var/log/ircproxy
+	fi
+
+	if [ ! -f ${IRCPROXYD_PIDFILE} ] ; then
+		touch ${IRCPROXYD_PIDFILE}
+		chown ${usergroup} ${IRCPROXYD_PIDFILE}
+	fi
+
+	start-stop-daemon --start --quiet --exec ${IRCPROXYD_EXEC} \
+		${IRCPROXYD_USER:+--user ${IRCPROXYD_USER}} \
+		${IRCPROXYD_GROUP:+--group ${IRCPROXYD_GROUP}} \
+		--env PIDFILE=${IRCPROXYD_PIDFILE} \
+		--pidfile ${IRCPROXYD_PIDFILE} -- \
+		-c ${IRCPROXYD_CONF:-/etc/ircproxy/ircproxyd.conf}
+
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ircproxyd"
+	start-stop-daemon --stop --quiet --pidfile "${IRCPROXYD_PIDFILE}"
+	eend $?
+}
+
+reload() {
+	ebegin "Reloading ircproxyd configuration"
+	${IRCPROXYD_EXEC} -r
+	eend $?
+}
